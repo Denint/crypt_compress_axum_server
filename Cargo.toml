@@ -1,0 +1,45 @@
+[package]
+name = "crypt_compress_axum_server"
+version = "0.1.0"
+edition = "2024"
+
+[profile.dev]
+opt-level = 0                          # Без оптимизаций — код остаётся близким к исходному
+debug = true                           # Включаем полную отладочную информацию (DWARF)
+split-debuginfo = "packed"             # Символы в отдельный файл (для IDE и GDB удобнее)
+debug-assertions = true                # Активируем debug_assert!() — отлавливаем баги на раннем этапе
+overflow-checks = true                 # Проверка переполнения целых чисел в рантайме
+incremental = true                     # Инкрементальная сборка — быстрая пересборка по изменённым модулям
+codegen-units = 256                     # Распараллеливаем генерацию машинного кода
+lto = false                            # Отключаем LTO — упрощаем трассировку стека, ускоряем сборку
+panic = "unwind"                       # Полный стек вызовов при panic — удобно для отладки
+strip = false                          # гарантированно оставить символы при сборке в CI с этим профилемa
+
+[profile.release]
+opt-level = 3               # агрессивная оптимизация кода
+debug = false               # совсем никаких отладочных метаданных
+debug-assertions = false    # никаких ассёртов
+overflow-checks = false     # никаких проверок переполнения
+incremental = false         # инкрементальный билд только тормозит оптимизатор в release
+lto = true                  # включаем полное LTO (Link Time Optimization)
+codegen-units = 1           # единичный единица кода для лучшей оптимизации
+panic = "abort"             # убираем unwind-код (уменьшаем размер и ускоряем запуск)
+strip = true                # автоматически убираем символы из результирующего файла
+
+[dependencies]
+axum            = "0.7"
+tokio           = { version = "1", features = ["full"] }
+tokio-util      = { version = "0.7", features = ["io-util"] }
+tokio-stream    = "0.1"
+futures-util    = "0.3"
+bytes           = "1"
+async-compression = { version = "0.4", features = ["tokio", "zstd"] }
+async-encrypted-stream = "0.1"
+chacha20poly1305 = { version = "0.10", features = ["stream", "std"] }
+zstd                   = "0.13"
+zstd-framed = { version = "0.1", features = ["tokio"] }
+http-body-util = { version = "0.1.0-rc.3" }
+aes-gcm = "0.10.3"
+futures-executor = "0.3.31"
+futures = "0.3.31"
+async-stream = "0.3.6"
